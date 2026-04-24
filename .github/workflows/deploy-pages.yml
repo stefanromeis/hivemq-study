@@ -35,6 +35,16 @@ jobs:
           NEXT_PUBLIC_BASE_PATH: /hivemq-study
           BUILD_MODE: static
 
+      - name: Add root redirect to default locale
+        run: |
+          cat > apps/shell/out/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+            <head><meta http-equiv="refresh" content="0;url=en" /></head>
+            <body><a href="en">Redirect</a></body>
+          </html>
+          EOF
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
