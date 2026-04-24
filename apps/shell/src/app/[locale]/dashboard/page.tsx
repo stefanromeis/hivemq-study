@@ -21,14 +21,18 @@ export default async function DashboardPage({
   };
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-12">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
-        <p className="mt-2 text-slate-600">{t('description')}</p>
-      </header>
-      <section className="mt-8">
-        <TelemetryDashboard labels={labels} />
-      </section>
+    <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <header className="mb-8">
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            {t('title')}
+          </h1>
+          <p className="mt-1 text-sm text-slate-400">{t('description')}</p>
+        </header>
+        <section>
+          <TelemetryDashboard labels={labels} />
+        </section>
+      </div>
     </main>
   );
 }

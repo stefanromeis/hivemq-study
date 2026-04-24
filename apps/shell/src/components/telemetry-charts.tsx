@@ -37,8 +37,14 @@ export function TelemetryCharts({ messages }: TelemetryChartsProps) {
   return (
     <div className="space-y-4">
       {/* Temperature sparklines */}
-      <div className="rounded-lg border border-slate-200 bg-white p-4">
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">Temperature history</h3>
+      <div
+        className="card chart-dark animate-fade-in-up p-4"
+        style={{ animationDelay: '0.2s' }}
+      >
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-base" aria-hidden="true">🌡️</span>
+          <h3 className="text-sm font-semibold text-slate-200">Temperature history</h3>
+        </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {deviceIds.map((id) => (
             <TemperatureSparkline key={id} deviceId={id} data={byDevice.get(id)!} />
@@ -48,12 +54,24 @@ export function TelemetryCharts({ messages }: TelemetryChartsProps) {
 
       {/* Humidity + Battery bars */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <h3 className="mb-3 text-sm font-semibold text-slate-700">Humidity</h3>
+        <div
+          className="card chart-dark animate-fade-in-up p-4"
+          style={{ animationDelay: '0.3s' }}
+        >
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-base" aria-hidden="true">💧</span>
+            <h3 className="text-sm font-semibold text-slate-200">Humidity</h3>
+          </div>
           <HumidityChart deviceData={byDevice} deviceIds={deviceIds} />
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
-          <h3 className="mb-3 text-sm font-semibold text-slate-700">Battery</h3>
+        <div
+          className="card chart-dark animate-fade-in-up p-4"
+          style={{ animationDelay: '0.4s' }}
+        >
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-base" aria-hidden="true">🔋</span>
+            <h3 className="text-sm font-semibold text-slate-200">Battery</h3>
+          </div>
           <BatteryChart deviceData={byDevice} deviceIds={deviceIds} />
         </div>
       </div>
@@ -120,10 +138,10 @@ function TemperatureSparkline({ deviceId, data }: { deviceId: string; data: Tele
   const latest = data[data.length - 1]!;
 
   return (
-    <div className="rounded border border-slate-100 bg-slate-50 p-2">
+    <div className="rounded-lg border border-slate-700/40 bg-slate-900/50 p-2">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-mono font-medium text-slate-600">{deviceId}</span>
-        <span className="tabular-nums text-slate-800">{latest.temp.toFixed(1)}°C</span>
+        <span className="font-mono font-medium text-slate-400">{deviceId}</span>
+        <span className="tabular-nums text-cyan-400">{latest.temp.toFixed(1)}°C</span>
       </div>
       <svg ref={svgRef} viewBox="0 0 200 50" className="mt-1 w-full" />
     </div>
