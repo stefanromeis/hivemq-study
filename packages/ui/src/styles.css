@@ -1,0 +1,4 @@
+/* Shared Tailwind base — the shell app imports this alongside its own globals. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

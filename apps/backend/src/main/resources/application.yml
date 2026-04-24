@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: hivemq-study-backend
+
+mqtt:
+  # The broker the backend subscribes to (docker-compose HiveMQ CE exposes 1883).
+  host: ${MQTT_HOST:localhost}
+  port: ${MQTT_PORT:1883}
+  client-id: backend-${random.value}
+  topic-telemetry: devices/+/telemetry
+  topic-status: devices/+/status
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.hivemqstudy: INFO

@@ -1,0 +1,37 @@
+{
+  "name": "hivemq-study",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo study: microfrontend-ready Next.js + Java Spring Boot + HiveMQ CE.",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "turbo run test:e2e",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml}\"",
+    "broker:up": "docker compose -f infra/docker/docker-compose.yml up -d",
+    "broker:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "broker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f hivemq",
+    "sim:weather": "node scripts/weather-publisher.mjs",
+    "sim:iot": "node scripts/iot-simulator.mjs",
+    "backend:dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw spring-boot:run",
+    "backend:test": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw test",
+    "backend:build": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw -DskipTests package"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.1.3",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "mqtt": "^5.10.1"
+  }
+}

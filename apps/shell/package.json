@@ -1,0 +1,51 @@
+{
+  "name": "@hivemq-study/shell",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The shell Next.js app. Acts as the entry point; future feature zones will mount under /[locale]/<zone> via Next.js Multi-Zones.",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium"
+  },
+  "dependencies": {
+    "@hivemq-study/types": "workspace:*",
+    "@hivemq-study/ui": "workspace:*",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.0",
+    "d3": "^7.9.0",
+    "mqtt": "^5.10.1",
+    "next": "^15.0.0",
+    "next-intl": "^3.20.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "three": "^0.184.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@hivemq-study/config-eslint": "workspace:*",
+    "@hivemq-study/config-typescript": "workspace:*",
+    "@playwright/test": "^1.48.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^20.16.10",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.12.0",
+    "jsdom": "^25.0.1",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.2"
+  }
+}

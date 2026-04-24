@@ -1,0 +1,23 @@
+services:
+  hivemq:
+    image: hivemq/hivemq-ce:latest
+    container_name: hivemq-study-broker
+    restart: unless-stopped
+    ports:
+      - "1883:1883"   # MQTT TCP
+      - "8000:8000"   # MQTT over WebSockets (browser clients)
+      - "8080:8080"   # HiveMQ Control Center
+    volumes:
+      - ./hivemq-config:/opt/hivemq/conf:ro
+      - hivemq-data:/opt/hivemq/data
+      - hivemq-logs:/opt/hivemq/log
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -z localhost 1883"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  hivemq-data:
+  hivemq-logs:

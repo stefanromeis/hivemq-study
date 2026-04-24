@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+target/
+*.class
+
+# Turbo / cache
+.turbo/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# Test
+coverage/
+playwright-report/
+test-results/
+
+# Java / Maven
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+*.jar
+!apps/backend/.mvn/wrapper/maven-wrapper.jar
+
+# HiveMQ data
+infra/docker/hivemq-data/

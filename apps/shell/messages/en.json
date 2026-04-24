@@ -1,0 +1,22 @@
+{
+  "common": {
+    "appName": "HiveMQ Study",
+    "tagline": "Monorepo, microfrontend-ready, full local MQTT."
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "devices": "Devices"
+  },
+  "dashboard": {
+    "title": "Live telemetry",
+    "description": "Messages arriving over MQTT-over-WebSocket from the local broker.",
+    "empty": "No telemetry yet. Publish to 'devices/+/telemetry' to see messages.",
+    "feed": "Live feed",
+    "connectionStatus": {
+      "connecting": "Connecting to broker…",
+      "connected": "Connected",
+      "error": "Connection error: {message}",
+      "disconnected": "Disconnected"
+    }
+  }
+}
