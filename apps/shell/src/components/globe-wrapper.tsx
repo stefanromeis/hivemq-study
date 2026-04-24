@@ -2,7 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import type { Telemetry } from '@hivemq-study/types';
-import { useRouter } from '@/i18n/navigation';
+import { useRouter, usePathname } from '@/i18n/navigation';
+import { useLocale } from 'next-intl';
 
 const Globe = dynamic(
   () => import('@/components/telemetry-globe').then((m) => m.TelemetryGlobe),
@@ -29,10 +30,11 @@ const Globe = dynamic(
 
 export function GlobeWrapper({ messages }: { messages: Telemetry[] }) {
   const router = useRouter();
+  const locale = useLocale();
   return (
     <Globe
       messages={messages}
-      onCityClick={(cityId) => router.push(`/city/${cityId}`)}
+      onCityClick={(cityId) => router.push(`/city/${cityId}`, { locale })}
     />
   );
 }

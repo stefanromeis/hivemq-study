@@ -33,7 +33,7 @@ jobs:
         run: pnpm --filter @hivemq-study/shell build
         env:
           NEXT_PUBLIC_BASE_PATH: /hivemq-study
-          BUILD_MODE: static
+          NEXT_PUBLIC_BUILD_MODE: static
 
       - name: Add root redirect to default locale
         run: |
@@ -44,6 +44,35 @@ jobs:
             <body><a href="en">Redirect</a></body>
           </html>
           EOF
+
+      - name: Add 404 fallback that redirects to default locale
+        run: |
+          cat > apps/shell/out/404.html << 'FALLBACK'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <script>
+                (function () {
+                  var basePath = '/hivemq-study';
+                  var locales = ['en', 'de'];
+                  var path = window.location.pathname;
+                  // Strip basePath prefix
+                  var rest = path.startsWith(basePath) ? path.slice(basePath.length) : path;
+                  // Check if a locale prefix is already present
+                  var hasLocale = locales.some(function (l) {
+                    return rest === '/' + l || rest.startsWith('/' + l + '/');
+                  });
+                  if (!hasLocale) {
+                    // Prepend default locale and redirect
+                    var target = basePath + '/en' + (rest.startsWith('/') ? rest : '/' + rest);
+                    window.location.replace(target + window.location.search + window.location.hash);
+                  }
+                })();
+              </script>
+            </head>
+            <body><p>Redirecting…</p></body>
+          </html>
+          FALLBACK
 
       - uses: actions/configure-pages@v5
 

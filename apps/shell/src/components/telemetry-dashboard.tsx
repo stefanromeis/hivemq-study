@@ -56,23 +56,42 @@ export function TelemetryDashboard({ labels }: { labels: DashboardLabels }) {
           aria-live="polite"
           className="card flex flex-col items-center justify-center px-4 py-16"
         >
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-800/50 ring-1 ring-slate-700/50">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-slate-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9.348 14.652a3.75 3.75 0 010-5.304m5.304 0a3.75 3.75 0 010 5.304m-7.425 2.121a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
-          </div>
-          <p className="text-sm text-slate-500">{labels.empty}</p>
+          {connection.status === 'connecting' ? (
+            <>
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-800/50 ring-1 ring-slate-700/50">
+                <svg
+                  className="h-6 w-6 animate-spin text-cyan-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+              <p className="text-sm text-slate-500">{labels.connecting}</p>
+            </>
+          ) : (
+            <>
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-800/50 ring-1 ring-slate-700/50">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-slate-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9.348 14.652a3.75 3.75 0 010-5.304m5.304 0a3.75 3.75 0 010 5.304m-7.425 2.121a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788M12 12h.008v.008H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                  />
+                </svg>
+              </div>
+              <p className="text-sm text-slate-500">{labels.empty}</p>
+            </>
+          )}
         </div>
       ) : (
         <>

@@ -16,7 +16,8 @@ const STATUS_STYLES: Record<Status, { bg: string; ring: string; text: string; do
   red: { bg: 'bg-red-500/10', ring: 'ring-red-500/20', text: 'text-red-400', dot: 'bg-red-400' },
 };
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const IS_STATIC = process.env.NEXT_PUBLIC_BUILD_MODE === 'static';
 
 interface Props {
   cityName: string;
@@ -29,10 +30,11 @@ export function AiWeatherSummary({ cityName, hourly }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   const generate = useCallback(async () => {
+    const baseUrl = BACKEND_URL || 'http://localhost:8081';
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/weather/summary`, {
+      const res = await fetch(`${baseUrl}/api/weather/summary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -61,6 +63,10 @@ export function AiWeatherSummary({ cityName, hourly }: Props) {
 
   // Not yet generated — show button
   if (!result && !loading && !error) {
+    // No backend available on static deploy — hide the button
+    if (IS_STATIC && !BACKEND_URL) {
+      return null;
+    }
     return (
       <div className="card flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
