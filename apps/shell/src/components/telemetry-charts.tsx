@@ -138,7 +138,7 @@ function TemperatureSparkline({ deviceId, data }: { deviceId: string; data: Tele
   const latest = data[data.length - 1]!;
 
   return (
-    <div className="rounded-lg border border-slate-700/40 bg-slate-900/50 p-2">
+    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
       <div className="flex items-center justify-between text-xs">
         <span className="font-mono font-medium text-slate-400">{deviceId}</span>
         <span className="tabular-nums text-cyan-400">{latest.temp.toFixed(1)}°C</span>
@@ -218,7 +218,7 @@ function HumidityChart({
     svg.attr('viewBox', `0 0 ${width} ${height}`);
   }, [deviceData, deviceIds]);
 
-  return <svg ref={svgRef} className="w-full" />;
+  return <svg ref={svgRef} className="w-full" aria-label="Humidity chart" />;
 }
 
 function BatteryChart({
@@ -293,5 +293,5 @@ function BatteryChart({
     svg.attr('viewBox', `0 0 ${width} ${height}`);
   }, [deviceData, deviceIds]);
 
-  return <svg ref={svgRef} className="w-full" />;
+  return <svg ref={svgRef} className="w-full" aria-label="Battery chart" />;
 }

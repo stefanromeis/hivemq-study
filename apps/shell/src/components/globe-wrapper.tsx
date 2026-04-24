@@ -8,7 +8,7 @@ const Globe = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[400px] items-center justify-center rounded-xl border border-slate-700/50 bg-slate-950 text-slate-500 shadow-lg shadow-black/20">
+      <div className="flex h-[400px] items-center justify-center rounded-xl border border-slate-800 bg-slate-950 text-slate-500 shadow-lg shadow-black/20">
         <div className="flex flex-col items-center gap-2">
           <svg
             className="h-6 w-6 animate-spin text-slate-600"

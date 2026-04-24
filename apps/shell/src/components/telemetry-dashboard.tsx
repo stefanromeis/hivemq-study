@@ -27,7 +27,7 @@ export function TelemetryDashboard({ labels }: { labels: DashboardLabels }) {
       {/* Connection status bar */}
       <div className="card flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700/50">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800/50">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-4 w-4 text-slate-400"
@@ -56,7 +56,7 @@ export function TelemetryDashboard({ labels }: { labels: DashboardLabels }) {
           aria-live="polite"
           className="card flex flex-col items-center justify-center px-4 py-16"
         >
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-700/50 ring-1 ring-slate-600/50">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-800/50 ring-1 ring-slate-700/50">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-6 w-6 text-slate-500"
@@ -85,7 +85,7 @@ export function TelemetryDashboard({ labels }: { labels: DashboardLabels }) {
               className="card animate-fade-in-up overflow-hidden"
               style={{ animationDelay: '0.1s' }}
             >
-              <div className="flex items-center gap-2 border-b border-slate-700/50 px-4 py-3">
+              <div className="flex items-center gap-2 border-b border-slate-800 px-4 py-3">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-4 w-4 text-cyan-400"
@@ -104,11 +104,11 @@ export function TelemetryDashboard({ labels }: { labels: DashboardLabels }) {
                   {labels.feed}
                 </h3>
               </div>
-              <ul className="max-h-[356px] divide-y divide-slate-700/30 overflow-y-auto">
+              <ul className="max-h-[356px] divide-y divide-slate-800/50 overflow-y-auto">
                 {messages.slice(0, 50).map((m, i) => (
                   <li
                     key={`${m.deviceId}-${m.ts}-${i}`}
-                    className="grid grid-cols-4 gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-slate-700/20"
+                    className="grid grid-cols-4 gap-2 px-4 py-2.5 text-sm transition-colors hover:bg-slate-800/50"
                   >
                     <span className="font-mono text-xs text-slate-500">
                       {new Date(m.ts).toLocaleTimeString()}

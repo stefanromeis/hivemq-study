@@ -94,7 +94,7 @@ export function TelemetryGlobe({ messages }: TelemetryGlobeProps) {
   }, [messages]);
 
   return (
-    <div className="h-[400px] w-full overflow-hidden rounded-xl border border-slate-700/50 bg-slate-950 shadow-lg shadow-black/20">
+    <div className="h-[400px] w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-950 shadow-lg shadow-black/20">
       <Canvas camera={{ position: [0, 0, 2.8], fov: 45 }}>
         <ambientLight intensity={0.3} />
         <pointLight position={[5, 3, 5]} intensity={1} />
