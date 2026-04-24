@@ -4,6 +4,8 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 import type { OpenMeteoResponse } from '@/lib/open-meteo';
 import { weatherCodeToInfo } from '@/lib/open-meteo';
+import { WeatherAnalysisPanel } from '@/components/weather-analysis-panel';
+import { AiWeatherSummary } from '@/components/ai-weather-summary';
 
 interface Props {
   weather: OpenMeteoResponse;
@@ -78,6 +80,12 @@ export function CityWeatherView({ weather, cityName }: Props) {
           <StatCard label="Precipitation" value={`${precipitation.toFixed(1)} mm`} />
         </div>
       </div>
+
+      {/* AI Weather Analysis */}
+      <WeatherAnalysisPanel hourly={hourly} />
+
+      {/* AI-powered summary (Groq/Llama 3) */}
+      <AiWeatherSummary cityName={cityName} hourly={hourly} />
 
       {/* Time slider */}
       <div className="card p-4">

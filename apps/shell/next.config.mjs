@@ -14,6 +14,7 @@ const nextConfig = {
   // Static export for GitHub Pages
   ...(isStatic && {
     output: 'export',
+    trailingSlash: true,
     images: { unoptimized: true },
   }),
   ...(basePath && { basePath, assetPrefix: basePath }),

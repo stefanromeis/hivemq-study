@@ -13,6 +13,9 @@ mqtt:
   topic-telemetry: devices/+/telemetry
   topic-status: devices/+/status
 
+groq:
+  api-key: ${GROQ_API_KEY:}
+
 management:
   endpoints:
     web:

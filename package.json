@@ -22,7 +22,7 @@
     "broker:logs": "docker compose -f infra/docker/docker-compose.yml logs -f hivemq",
     "sim:weather": "node scripts/weather-publisher.mjs",
     "sim:iot": "node scripts/iot-simulator.mjs",
-    "backend:dev": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw spring-boot:run",
+    "backend:dev": "set -a && [ -f .env ] && . ./.env && set +a && export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw spring-boot:run",
     "backend:test": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw test",
     "backend:build": "export JAVA_HOME=/opt/homebrew/opt/openjdk@21 && export PATH=/opt/homebrew/opt/openjdk@21/bin:\"$PATH\" && cd apps/backend && ./mvnw -DskipTests package"
   },
