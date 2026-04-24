@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import '../globals.css';
@@ -16,6 +16,8 @@ export default async function LocaleLayout({ children, params }: LayoutProps) {
   if (!(routing.locales as readonly string[]).includes(locale)) {
     notFound();
   }
+
+  setRequestLocale(locale);
 
   // Fetch messages for client-component subtrees.
   const messages = await getMessages();

@@ -19,7 +19,7 @@ export function TelemetryCharts({ messages }: TelemetryChartsProps) {
   const byDevice = useMemo(() => {
     const map = new Map<string, Telemetry[]>();
     for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
+      const m = messages[i]!;
       let arr = map.get(m.deviceId);
       if (!arr) {
         arr = [];
@@ -109,7 +109,7 @@ function TemperatureSparkline({ deviceId, data }: { deviceId: string; data: Tele
       .attr('stroke-width', 1.5);
 
     // Latest point
-    const last = data[data.length - 1];
+    const last = data[data.length - 1]!;
     g.append('circle')
       .attr('cx', x(data.length - 1))
       .attr('cy', y(last.temp))
@@ -117,7 +117,7 @@ function TemperatureSparkline({ deviceId, data }: { deviceId: string; data: Tele
       .attr('fill', '#3b82f6');
   }, [data]);
 
-  const latest = data[data.length - 1];
+  const latest = data[data.length - 1]!;
 
   return (
     <div className="rounded border border-slate-100 bg-slate-50 p-2">
@@ -148,7 +148,7 @@ function HumidityChart({
     const entries = deviceIds
       .map((id) => {
         const arr = deviceData.get(id)!;
-        const latest = arr[arr.length - 1];
+        const latest = arr[arr.length - 1]!;
         return { id, humidity: latest.humidity ?? 0 };
       })
       .filter((e) => e.humidity > 0);
@@ -221,7 +221,7 @@ function BatteryChart({
     const entries = deviceIds
       .map((id) => {
         const arr = deviceData.get(id)!;
-        const latest = arr[arr.length - 1];
+        const latest = arr[arr.length - 1]!;
         return { id, battery: latest.battery ?? 0 };
       })
       .filter((e) => e.battery > 0);

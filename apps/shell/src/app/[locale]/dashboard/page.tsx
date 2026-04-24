@@ -1,7 +1,13 @@
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { TelemetryDashboard } from '@/components/telemetry-dashboard';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('dashboard');
   const tc = await getTranslations('dashboard.connectionStatus');
 
