@@ -1,19 +1,13 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Sphere, Html } from '@react-three/drei';
+import { OrbitControls, Sphere, Html, Line } from '@react-three/drei';
 import * as THREE from 'three';
+import { feature } from 'topojson-client';
+import type { Topology, GeometryCollection } from 'topojson-specification';
 import type { Telemetry } from '@hivemq-study/types';
-
-/** Known city coordinates for the weather publisher devices */
-const CITY_COORDS: Record<string, { lat: number; lon: number; name: string }> = {
-  vienna: { lat: 48.21, lon: 16.37, name: 'Vienna' },
-  berlin: { lat: 52.52, lon: 13.41, name: 'Berlin' },
-  london: { lat: 51.51, lon: -0.13, name: 'London' },
-  'new-york': { lat: 40.71, lon: -74.01, name: 'New York' },
-  tokyo: { lat: 35.68, lon: 139.69, name: 'Tokyo' },
-};
+import { CITIES } from '@/lib/cities';
 
 function latLonToVec3(lat: number, lon: number, radius: number): [number, number, number] {
   const phi = (90 - lat) * (Math.PI / 180);
@@ -33,6 +27,57 @@ function tempToColor(temp: number): string {
   return `rgb(${r}, ${Math.round(80 + (1 - Math.abs(t - 0.5) * 2) * 120)}, ${b})`;
 }
 
+/** Convert a GeoJSON coordinate ring to 3D points on the sphere surface. */
+function ringToPoints(coords: number[][], radius: number): [number, number, number][] {
+  return coords.map(([lon, lat]) => latLonToVec3(lat!, lon!, radius));
+}
+
+/** Load 110m land polygons from world-atlas and render as lines on the globe. */
+function Coastlines({ radius = 1.006 }: { radius?: number }) {
+  const [lines, setLines] = useState<[number, number, number][][]>([]);
+
+  useEffect(() => {
+    import('world-atlas/land-110m.json').then((topoRaw) => {
+      const topo = topoRaw.default as unknown as Topology<{ land: GeometryCollection }>;
+      const geojson = feature(topo, topo.objects.land);
+      const result: [number, number, number][][] = [];
+
+      const features = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
+      for (const feat of features) {
+        if (feat.type !== 'Feature' || !feat.geometry) continue;
+        const geom = feat.geometry as { type: string; coordinates: number[][][] | number[][][][] };
+        if (geom.type === 'Polygon') {
+          for (const ring of geom.coordinates as number[][][]) {
+            result.push(ringToPoints(ring, radius));
+          }
+        } else if (geom.type === 'MultiPolygon') {
+          for (const polygon of geom.coordinates as number[][][][]) {
+            for (const ring of polygon) {
+              result.push(ringToPoints(ring, radius));
+            }
+          }
+        }
+      }
+      setLines(result);
+    });
+  }, [radius]);
+
+  return (
+    <>
+      {lines.map((points, i) => (
+        <Line
+          key={i}
+          points={points}
+          color="#4ade80"
+          lineWidth={0.5}
+          transparent
+          opacity={0.4}
+        />
+      ))}
+    </>
+  );
+}
+
 function RotatingGlobe({ children }: { children: React.ReactNode }) {
   const groupRef = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
@@ -43,11 +88,13 @@ function RotatingGlobe({ children }: { children: React.ReactNode }) {
   return <group ref={groupRef}>{children}</group>;
 }
 
-function GlobeMarker({ lat, lon, name, telemetry }: {
+function GlobeMarker({ lat, lon, name, cityId, telemetry, onCityClick }: {
   lat: number;
   lon: number;
   name: string;
+  cityId: string;
   telemetry: Telemetry | null;
+  onCityClick?: (cityId: string) => void;
 }) {
   const position = useMemo(() => latLonToVec3(lat, lon, 1.02), [lat, lon]);
   const color = telemetry ? tempToColor(telemetry.temp) : '#888888';
@@ -58,19 +105,23 @@ function GlobeMarker({ lat, lon, name, telemetry }: {
         <sphereGeometry args={[0.03, 16, 16]} />
         <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.5} />
       </mesh>
-      <Html distanceFactor={3} style={{ pointerEvents: 'none' }}>
-        <div className="whitespace-nowrap rounded bg-slate-900/90 px-2 py-1 text-xs text-white shadow-lg">
+      <Html distanceFactor={3} style={{ pointerEvents: 'auto' }}>
+        <button
+          type="button"
+          onClick={() => onCityClick?.(cityId)}
+          className="whitespace-nowrap rounded bg-slate-900/90 px-2 py-1 text-xs text-white shadow-lg transition-colors hover:bg-cyan-900/90 cursor-pointer"
+        >
           <div className="font-semibold">{name}</div>
           {telemetry ? (
             <>
               <div>{telemetry.temp.toFixed(1)}°C</div>
               {telemetry.humidity != null && <div>{telemetry.humidity}% RH</div>}
-              {telemetry.battery != null && <div>🔋 {telemetry.battery.toFixed(1)}%</div>}
             </>
           ) : (
             <div className="text-slate-400">No data</div>
           )}
-        </div>
+          <div className="mt-0.5 text-[10px] text-cyan-400">Details →</div>
+        </button>
       </Html>
     </group>
   );
@@ -78,9 +129,10 @@ function GlobeMarker({ lat, lon, name, telemetry }: {
 
 interface TelemetryGlobeProps {
   messages: Telemetry[];
+  onCityClick?: (cityId: string) => void;
 }
 
-export function TelemetryGlobe({ messages }: TelemetryGlobeProps) {
+export function TelemetryGlobe({ messages, onCityClick }: TelemetryGlobeProps) {
   // Get latest telemetry per city-based device
   const latestByDevice = useMemo(() => {
     const map = new Map<string, Telemetry>();
@@ -112,14 +164,18 @@ export function TelemetryGlobe({ messages }: TelemetryGlobeProps) {
           <Sphere args={[1.005, 32, 32]}>
             <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.15} />
           </Sphere>
+          {/* Coastlines / land outlines */}
+          <Coastlines />
           {/* City markers */}
-          {Object.entries(CITY_COORDS).map(([id, city]) => (
+          {CITIES.map((city) => (
             <GlobeMarker
-              key={id}
+              key={city.id}
+              cityId={city.id}
               lat={city.lat}
               lon={city.lon}
               name={city.name}
-              telemetry={latestByDevice.get(id) ?? null}
+              telemetry={latestByDevice.get(city.id) ?? null}
+              onCityClick={onCityClick}
             />
           ))}
         </RotatingGlobe>

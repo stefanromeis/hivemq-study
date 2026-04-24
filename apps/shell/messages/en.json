@@ -18,5 +18,9 @@
       "error": "Connection error: {message}",
       "disconnected": "Disconnected"
     }
+  },
+  "city": {
+    "backToDashboard": "Back to Dashboard",
+    "subtitle": "{lat}°N, {lon}°E — 24h hourly forecast from Open-Meteo"
   }
 }

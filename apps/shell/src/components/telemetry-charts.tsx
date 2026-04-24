@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useMemo } from 'react';
+import { useRef, useEffect, useMemo, useCallback } from 'react';
 import * as d3 from 'd3';
 import type { Telemetry } from '@hivemq-study/types';
 
@@ -45,9 +45,9 @@ export function TelemetryCharts({ messages }: TelemetryChartsProps) {
           <span className="text-base" aria-hidden="true">🌡️</span>
           <h3 className="text-sm font-semibold text-slate-200">Temperature history</h3>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {deviceIds.map((id) => (
-            <TemperatureSparkline key={id} deviceId={id} data={byDevice.get(id)!} />
+            <TemperatureChart key={id} deviceId={id} data={byDevice.get(id)!} />
           ))}
         </div>
       </div>
@@ -79,71 +79,180 @@ export function TelemetryCharts({ messages }: TelemetryChartsProps) {
   );
 }
 
-function TemperatureSparkline({ deviceId, data }: { deviceId: string; data: Telemetry[] }) {
+function TemperatureChart({ deviceId, data }: { deviceId: string; data: Telemetry[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+
+  const width = 420;
+  const height = 140;
+  const margin = { top: 8, right: 12, bottom: 28, left: 40 };
+
+  const draw = useCallback(
+    (currentData: Telemetry[], xDomain?: [Date, Date]) => {
+      const svg = d3.select(svgRef.current!);
+      const w = width - margin.left - margin.right;
+      const h = height - margin.top - margin.bottom;
+
+      // Clear previous content inside the clip group
+      svg.select('.chart-area').selectAll('*').remove();
+      svg.select('.x-axis-g').selectAll('*').remove();
+      svg.select('.y-axis-g').selectAll('*').remove();
+
+      const g = svg.select<SVGGElement>('.chart-area');
+
+      // Time scale
+      const times = currentData.map((d) => new Date(d.ts));
+      const xFull = d3.scaleTime()
+        .domain(d3.extent(times) as [Date, Date])
+        .range([0, w]);
+      const x = xDomain
+        ? d3.scaleTime().domain(xDomain).range([0, w])
+        : xFull;
+
+      const temps = currentData.map((d) => d.temp);
+      const yMin = d3.min(temps)! - 1;
+      const yMax = d3.max(temps)! + 1;
+      const y = d3.scaleLinear().domain([yMin, yMax]).range([h, 0]);
+
+      // Axes
+      const xAxis = d3.axisBottom(x)
+        .ticks(5)
+        .tickFormat((d) => d3.timeFormat('%H:%M:%S')(d as Date));
+      svg.select<SVGGElement>('.x-axis-g')
+        .call(xAxis)
+        .selectAll('text')
+        .attr('fill', '#64748b')
+        .attr('font-size', 9);
+      svg.select('.x-axis-g').selectAll('line, path').attr('stroke', '#334155');
+
+      const yAxis = d3.axisLeft(y).ticks(4).tickFormat((d) => `${d}°`);
+      svg.select<SVGGElement>('.y-axis-g')
+        .call(yAxis)
+        .selectAll('text')
+        .attr('fill', '#64748b')
+        .attr('font-size', 9);
+      svg.select('.y-axis-g').selectAll('line, path').attr('stroke', '#334155');
+
+      // Area + line
+      const area = d3.area<Telemetry>()
+        .x((d) => x(new Date(d.ts)))
+        .y0(h)
+        .y1((d) => y(d.temp))
+        .curve(d3.curveMonotoneX);
+
+      const line = d3.line<Telemetry>()
+        .x((d) => x(new Date(d.ts)))
+        .y((d) => y(d.temp))
+        .curve(d3.curveMonotoneX);
+
+      g.append('path')
+        .datum(currentData)
+        .attr('d', area)
+        .attr('fill', 'rgba(59, 130, 246, 0.1)');
+
+      g.append('path')
+        .datum(currentData)
+        .attr('d', line)
+        .attr('fill', 'none')
+        .attr('stroke', '#3b82f6')
+        .attr('stroke-width', 1.5);
+
+      // Latest point
+      const last = currentData[currentData.length - 1]!;
+      g.append('circle')
+        .attr('cx', x(new Date(last.ts)))
+        .attr('cy', y(last.temp))
+        .attr('r', 3)
+        .attr('fill', '#3b82f6');
+    },
+    [margin.left, margin.right, margin.top, margin.bottom],
+  );
 
   useEffect(() => {
     if (!svgRef.current || data.length < 2) return;
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
-
-    const width = 200;
-    const height = 50;
-    const margin = { top: 4, right: 4, bottom: 4, left: 4 };
     const w = width - margin.left - margin.right;
     const h = height - margin.top - margin.bottom;
 
-    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+    // One-time scaffold
+    svg.selectAll('*').remove();
+    svg.attr('viewBox', `0 0 ${width} ${height}`);
 
-    const x = d3.scaleLinear().domain([0, data.length - 1]).range([0, w]);
-    const temps = data.map((d) => d.temp);
-    const yMin = d3.min(temps)! - 1;
-    const yMax = d3.max(temps)! + 1;
-    const y = d3.scaleLinear().domain([yMin, yMax]).range([h, 0]);
+    // Clip path
+    svg.append('defs')
+      .append('clipPath')
+      .attr('id', `clip-${deviceId}`)
+      .append('rect')
+      .attr('width', w)
+      .attr('height', h);
 
-    const line = d3.line<Telemetry>()
-      .x((_, i) => x(i))
-      .y((d) => y(d.temp))
-      .curve(d3.curveMonotoneX);
+    const mainG = svg.append('g')
+      .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Gradient area
-    const area = d3.area<Telemetry>()
-      .x((_, i) => x(i))
-      .y0(h)
-      .y1((d) => y(d.temp))
-      .curve(d3.curveMonotoneX);
+    mainG.append('g').attr('class', 'chart-area').attr('clip-path', `url(#clip-${deviceId})`);
+    mainG.append('g').attr('class', 'x-axis-g').attr('transform', `translate(0,${h})`);
+    mainG.append('g').attr('class', 'y-axis-g');
 
-    g.append('path')
-      .datum(data)
-      .attr('d', area)
-      .attr('fill', 'rgba(59, 130, 246, 0.1)');
+    draw(data);
 
-    g.append('path')
-      .datum(data)
-      .attr('d', line)
-      .attr('fill', 'none')
-      .attr('stroke', '#3b82f6')
-      .attr('stroke-width', 1.5);
+    // Zoom behaviour
+    const times = data.map((d) => new Date(d.ts));
+    const xFull = d3.scaleTime()
+      .domain(d3.extent(times) as [Date, Date])
+      .range([0, w]);
 
-    // Latest point
-    const last = data[data.length - 1]!;
-    g.append('circle')
-      .attr('cx', x(data.length - 1))
-      .attr('cy', y(last.temp))
-      .attr('r', 3)
-      .attr('fill', '#3b82f6');
-  }, [data]);
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([1, 20])
+      .translateExtent([[0, 0], [w, h]])
+      .extent([[0, 0], [w, h]])
+      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        const newX = event.transform.rescaleX(xFull);
+        draw(data, [newX.domain()[0], newX.domain()[1]] as [Date, Date]);
+      });
 
-  const latest = data[data.length - 1]!;
+    svg.call(zoom);
+    zoomRef.current = zoom;
+
+    return () => {
+      svg.on('.zoom', null);
+    };
+  }, [data, deviceId, draw]);
+
+  const handleReset = () => {
+    if (svgRef.current && zoomRef.current) {
+      d3.select(svgRef.current)
+        .transition()
+        .duration(300)
+        .call(zoomRef.current.transform, d3.zoomIdentity);
+    }
+  };
+
+  const latest = data.length > 0 ? data[data.length - 1]! : null;
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
-      <div className="flex items-center justify-between text-xs">
+    <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+      <div className="mb-1 flex items-center justify-between text-xs">
         <span className="font-mono font-medium text-slate-400">{deviceId}</span>
-        <span className="tabular-nums text-cyan-400">{latest.temp.toFixed(1)}°C</span>
+        <div className="flex items-center gap-2">
+          {latest && (
+            <span className="tabular-nums text-cyan-400">{latest.temp.toFixed(1)}°C</span>
+          )}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="rounded px-1.5 py-0.5 text-[10px] text-slate-500 transition-colors hover:bg-slate-800 hover:text-slate-300"
+            title="Reset zoom"
+          >
+            Reset
+          </button>
+        </div>
       </div>
-      <svg ref={svgRef} viewBox="0 0 200 50" className="mt-1 w-full" />
+      <div ref={containerRef} className="cursor-grab active:cursor-grabbing">
+        <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} className="w-full" />
+      </div>
+      <p className="mt-1 text-center text-[9px] text-slate-600">Scroll to zoom · drag to pan</p>
     </div>
   );
 }

@@ -18,5 +18,9 @@
       "error": "Verbindungsfehler: {message}",
       "disconnected": "Getrennt"
     }
+  },
+  "city": {
+    "backToDashboard": "Zurück zum Dashboard",
+    "subtitle": "{lat}°N, {lon}°O — 24h Stundenvorhersage von Open-Meteo"
   }
 }
